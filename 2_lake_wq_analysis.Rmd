@@ -161,7 +161,7 @@ state and arrange that data from most to least toatl observations per state.
 ## Your code here. 
 ```
 
-## Is there a spatial pattern in Secchi disk depth for lakes with at least 200 
+##3 Is there a spatial pattern in Secchi disk depth for lakes with at least 200 
 observations?
 
 ```{r}
