@@ -25,7 +25,7 @@ library(USAboundaries) #USA states and counties
 ### First download and then specifically grab the locus (or site lat longs)
 ```{r data-read}
 #Lagos download script
-lagosne_get(dest_folder = LAGOSNE:::lagos_path())
+lagosne_get(version='1.087.1',dest_folder = LAGOSNE:::lagos_path())
 
 #Load in lagos
 lagos <- lagosne_load()
@@ -81,4 +81,48 @@ minnesota_lakes %>%
   arrange(lake_area_ha) %>%
   mapview(.,zcol = 'lake_area_ha')
 ```
+
+
+
+# In-Class work
+
+
+## 1) Show a map outline of Iowa and Illinois (similar to Minnesota map upstream)
+
+```{r }
+#Your code here
+```
+
+
+
+## 2) Subset LAGOS data to these sites, how many sites are in Illinois and Iowa
+combined? How does this compare to Minnesota?
+
+```{r}
+
+```
+
+
+## 3) What is the distribution of lake size in Iowa vs. Minnesota?
+
+- Here I want to see a histogram plot with lake size on x-axis and frequency on 
+y axis (check out geom_histogram)
+
+```{r}
+
+
+```
+
+
+## 4) Make an interactive plot of lakes in Iowa and Illinois and color them
+by lake area in hectares
+
+```{r}
+
+```
+
+
+## 5) What other data sources might we use to understand how reservoirs and 
+natural lakes vary in size in these three states? 
+
 
