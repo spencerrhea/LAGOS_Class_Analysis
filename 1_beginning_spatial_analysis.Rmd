@@ -3,6 +3,8 @@ title: "LAGOS Spatial Analysis"
 author: "Matthew Ross"
 date: "9/11/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -25,10 +27,12 @@ library(USAboundaries) #USA states and counties
 ### First download and then specifically grab the locus (or site lat longs)
 ```{r data-read}
 #Lagos download script
-lagosne_get(version='1.087.1',dest_folder = LAGOSNE:::lagos_path())
+LAGOSNE::lagosne_get(dest_folder = LAGOSNE:::lagos_path())
 
 #Load in lagos
 lagos <- lagosne_load()
+
+load('lake_centers.Rdata')
 
 #Grab the lake centroid info
 lake_centers <- lagos$locus
@@ -90,16 +94,49 @@ minnesota_lakes %>%
 ## 1) Show a map outline of Iowa and Illinois (similar to Minnesota map upstream)
 
 ```{r }
-#Your code here
+iowa_illinois <- states %>%
+  filter(name %in% c('Iowa', 'Illinois')) %>%
+  st_transform(2163)
+
+mapview(iowa_illinois)
+
+iowa_illinois_lakes <- spatial_lakes[iowa_illinois,]
+
+iowa_illinois_lakes %>%
+  slice(1:1000) %>%
+  arrange(lake_area_ha) %>%
+  mapview(.,zcol = 'lake_area_ha')
+
+iowa <- states %>%
+  filter(name == 'Iowa') %>%
+  st_transform(2163)
+
+iowa_lakes <- spatial_lakes[iowa,]
 ```
 
 
 
 ## 2) Subset LAGOS data to these sites, how many sites are in Illinois and Iowa
 combined? How does this compare to Minnesota?
+#minnesota = 29038
+#illinois & iowa = 16466
 
 ```{r}
+iowa_illinois_lakes <- spatial_lakes[iowa_illinois,]
 
+iowa_illinois_lakes %>%
+  slice(1:1000) %>%
+  arrange(lake_area_ha) %>%
+  mapview(zcol = 'lake_area_ha')
+
+iowa <- states %>%
+  filter(name == 'Iowa') %>%
+  st_transform(2163)
+
+iowa_lakes <- spatial_lakes[iowa,]
+
+str(iowa_illinois_lakes)
+str(minnesota_lakes)
 ```
 
 
@@ -110,7 +147,16 @@ y axis (check out geom_histogram)
 
 ```{r}
 
+minnesota_lakes <- mutate(minnesota_lakes, state = "minnesota")
 
+iowa_lakes <- mutate(iowa_lakes, state = "iowa") 
+
+both <- rbind(minnesota_lakes, iowa_lakes) 
+
+ggplot(both, aes(lake_area_ha)) +
+  geom_histogram() +
+  scale_x_log10() +
+  facet_wrap(~state)
 ```
 
 
@@ -118,11 +164,16 @@ y axis (check out geom_histogram)
 by lake area in hectares
 
 ```{r}
-
+iowa_illinois_lakes<- iowa_illinois_lakes %>%
+  arrange(lake_area_ha)
+mapview(iowa_illinois_lakes, zcol= 'lake_area_ha')
 ```
 
 
 ## 5) What other data sources might we use to understand how reservoirs and 
 natural lakes vary in size in these three states? 
+
+#FLow rates or discharge from stream gauges 
+#remote sensing of water 
 
 

@@ -3,6 +3,8 @@ title: "Lake Water Quality Analysis"
 author: "Matthew Ross"
 date: "9/17/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -13,7 +15,7 @@ library(sf) #Spatial package that can read and create shapefiles
 library(mapview) #Interactive maps
 library(LAGOSNE) #Lots and lots of clean lake data
 library(USAboundaries) #USA states and counties
-library(lubridate) #For dealing with date and time
+
 ```
 
 
@@ -29,7 +31,7 @@ library(lubridate) #For dealing with date and time
 lagosne_get(dest_folder = LAGOSNE:::lagos_path())
 
 #Load in lagos
-lagos <- lagosne_load('1.087.1')
+lagos <- lagosne_load()
 
 
 #Grab the lake centroid info
@@ -127,22 +129,39 @@ sites with at least 200 observations?
 
 ```{r}
 #Your code here
+q3 <- nutr %>%
+  group_by(., lagoslakeid) %>%
+  summarise(count = n()) %>%
+  filter(count >= 200)
 
+nutr200 <- nutr %>%
+  filter(lagoslakeid %in% q3$lagoslakeid)
+
+ggplot(nutr200, aes(x = chla, y= secchi)) +
+  geom_point()
+  
+  
 
 ```
 
 
 ## Why might this be the case? 
 
+#High chla concentration would result in a like with low clarity becuase algae add particles to the water
 
 ## 2) What states have the most data? 
+#Minnesota, Wisconsin, and Michigan
 
 ### 2a) First you will need to make a lagos spatial dataset that has the total 
 number of counts per site.
 
 ```{r}
 
-## Your code here
+q2 <- nutr %>%
+  group_by(., lagoslakeid) %>%
+  summarise(count = n()) %>%
+lakes_data <- inner_join(spatial_lakes, q2, key = lagoslakeid) %>%
+  filter(count >= 200) 
 ```
 
 
@@ -150,7 +169,10 @@ number of counts per site.
 data. 
 
 ```{r}
-## Your code here
+lakes_lots<- st_join(lakes_data, states) %>%
+  arrange(count)
+
+mapview(lakes_lots, zcol = 'count')
 ```
 
 
@@ -158,14 +180,25 @@ data.
 state and arrange that data from most to least toatl observations per state. 
 
 ```{r}
-## Your code here. 
+q2lakes <- lakes_lots %>%
+  group_by(stusps) %>%
+  summarise(sum = sum(count)) %>%
+  arrange(desc(sum))
 ```
 
 ##3 Is there a spatial pattern in Secchi disk depth for lakes with at least 200 
 observations?
 
 ```{r}
-## Your code here
+nut_secchi <- nutr200 %>%
+  select(secchi, lagoslakeid) %>%
+  group_by(lagoslakeid) %>%
+  summarise(av_secchi = mean(secchi, na.rm = TRUE))
+nutr_lots <- inner_join(lakes_data, nut_secchi, by="lagoslakeid") 
+nutr_lots <- st_as_sf(nutr_lots) %>%
+  filter(!is.na(av_secchi))
+mapview(nutr_lots, zcol = "av_secchi")
+
 
 ```
 
